@@ -1,0 +1,144 @@
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--bg-card);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.table th {
+  padding: 1.25rem 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  border-bottom: 2px solid var(--border);
+  background-color: rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+}
+
+.row {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+/* Subtle glow border effect on hover */
+.row::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.row:hover {
+  background-color: var(--bg-hover);
+}
+
+.row:hover::after {
+  background-color: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.table td {
+  padding: 1rem 1.5rem;
+  vertical-align: middle;
+}
+
+.titleCell {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.ipCell {
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+  font-size: 0.875rem;
+}
+
+.timeCell {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.statusBadge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--font-mono);
+  display: inline-block;
+}
+
+.statusNew { background-color: rgba(255, 51, 102, 0.15); color: var(--accent-red); border: 1px solid var(--accent-red); }
+.statusAck { background-color: rgba(255, 184, 0, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+.statusInv { background-color: rgba(0, 212, 255, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+.statusRes { background-color: rgba(0, 255, 135, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
+.statusDefault { background-color: rgba(136, 153, 170, 0.15); color: var(--text-secondary); border: 1px solid var(--text-secondary); }
+
+.actionBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionBtn:hover {
+  background-color: rgba(0, 212, 255, 0.1);
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background-color: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.emptyIcon {
+  color: var(--accent-green);
+  opacity: 0.5;
+  margin-bottom: 1.5rem;
+}
+
+.emptyState h3 {
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  margin-bottom: 0.5rem;
+}
+
+.emptyState p {
+  color: var(--text-secondary);
+}

@@ -1,0 +1,170 @@
+.container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.toast {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    min-width: 320px;
+    max-width: 380px;
+    pointer-events: all;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    cursor: default;
+}
+
+/* Severity colors */
+.critical {
+    background: rgba(20, 10, 10, 0.95);
+    border-color: rgba(255, 77, 77, 0.4);
+    box-shadow: 0 0 20px rgba(255, 77, 77, 0.2), 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.high {
+    background: rgba(20, 15, 5, 0.95);
+    border-color: rgba(255, 165, 0, 0.4);
+    box-shadow: 0 0 20px rgba(255, 165, 0, 0.2), 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.medium {
+    background: rgba(5, 15, 20, 0.95);
+    border-color: rgba(23, 162, 184, 0.4);
+    box-shadow: 0 0 20px rgba(23, 162, 184, 0.2), 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Icon */
+.toastIcon {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.critical .toastIcon {
+    color: #ff4d4d;
+}
+
+.high .toastIcon {
+    color: #ffa500;
+}
+
+.medium .toastIcon {
+    color: #17a2b8;
+}
+
+/* Content */
+.toastContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.toastHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.toastSeverity {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+
+.critical .toastSeverity {
+    color: #ff4d4d;
+}
+
+.high .toastSeverity {
+    color: #ffa500;
+}
+
+.medium .toastSeverity {
+    color: #17a2b8;
+}
+
+.toastTime {
+    font-size: 11px;
+    color: #555;
+}
+
+.toastTitle {
+    color: #e0e0e0;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.toastIp {
+    color: #888;
+    font-size: 11px;
+    margin: 0;
+    font-family: monospace;
+}
+
+/* Buttons */
+.toastActions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.viewBtn,
+.dismissBtn {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.viewBtn:hover {
+    background: rgba(102, 126, 234, 0.3);
+    color: #667eea;
+}
+
+.dismissBtn:hover {
+    background: rgba(255, 77, 77, 0.2);
+    color: #ff4d4d;
+}
+
+/* Progress bar */
+.progressBar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    border-radius: 0 0 12px 12px;
+}
+
+.critical .progressBar {
+    background: #ff4d4d;
+}
+
+.high .progressBar {
+    background: #ffa500;
+}
+
+.medium .progressBar {
+    background: #17a2b8;
+}

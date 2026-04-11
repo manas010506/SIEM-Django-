@@ -1,0 +1,92 @@
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Color Themes */
+.cyan {
+  border-top: 3px solid var(--accent-cyan);
+}
+.cyan .iconWrapper { color: var(--accent-cyan); background: rgba(0, 212, 255, 0.1); }
+.cyan .value { color: var(--accent-cyan); text-shadow: 0 0 10px rgba(0, 212, 255, 0.3); }
+
+.amber {
+  border-top: 3px solid var(--accent-amber);
+}
+.amber .iconWrapper { color: var(--accent-amber); background: rgba(255, 184, 0, 0.1); }
+.amber .value { color: var(--accent-amber); text-shadow: 0 0 10px rgba(255, 184, 0, 0.3); }
+
+.red {
+  border-top: 3px solid var(--accent-red);
+}
+.red .iconWrapper { color: var(--accent-red); background: rgba(255, 51, 102, 0.1); }
+.red .value { color: var(--accent-red); text-shadow: 0 0 10px rgba(255, 51, 102, 0.3); }
+.red { animation: pulse-border 2s infinite; }
+
+.green {
+  border-top: 3px solid var(--accent-green);
+}
+.green .iconWrapper { color: var(--accent-green); background: rgba(0, 255, 135, 0.1); }
+.green .value { color: var(--accent-green); text-shadow: 0 0 10px rgba(0, 255, 135, 0.3); }
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(255, 51, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 51, 102, 0); }
+}
+
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+}
+
+.title {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.valueContainer {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.value {
+  font-size: 2rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.glowEffect {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+  opacity: 0.5;
+  pointer-events: none;
+}

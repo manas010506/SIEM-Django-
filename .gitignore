@@ -1,0 +1,48 @@
+.DS_Store
+.vscode/
+.idea/
+*.log
+
+# Backend (Python / Django)
+siem_backend/__pycache__/
+siem_backend/*.py[cod]
+siem_backend/*$py.class
+siem_backend/*.so
+siem_backend/env/
+siem_backend/venv/
+siem_backend/.venv/
+siem_backend/.env
+siem_backend/db.sqlite3
+siem_backend/media/
+siem_backend/static/
+
+# Global Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+*/__pycache__/
+*/migrations/__pycache__/
+
+# Wrong/unnecessary files
+siem_backend/alerts/migrations.py
+siem_backend/alerts/0001_initial.py
+siem_backend/analytics/migrations.py
+siem_frontend/eslint_report.json
+siem_frontend/lint_output.txt
+
+# Frontend (Node.js / React / Vite)
+siem_frontend/node_modules/
+siem_frontend/dist/
+siem_frontend/dist-ssr/
+siem_frontend/build/
+siem_frontend/.env
+siem_frontend/.env.local
+siem_frontend/.env.development.local
+siem_frontend/.env.test.local
+siem_frontend/.env.production.local
+siem_frontend/npm-debug.log*
+siem_frontend/yarn-debug.log*
+siem_frontend/yarn-error.log*
+siem_frontend/pnpm-debug.log*

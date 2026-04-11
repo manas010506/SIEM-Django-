@@ -1,0 +1,133 @@
+:root {
+  /* Colors */
+  --bg-primary: #0a0f1e;        /* Deep space navy */
+  --bg-secondary: #0d1530;      /* Slightly lighter navy */
+  --bg-card: #111827;           /* Card backgrounds */
+  --bg-hover: #1a2744;          /* Hover states */
+  --accent-cyan: #00d4ff;       /* Primary accent - electric cyan */
+  --accent-green: #00ff87;      /* Success/safe - emerald green */
+  --accent-amber: #ffb800;      /* Warning - amber */
+  --accent-red: #ff3366;        /* Critical/danger - hot red */
+  --text-primary: #e8f4f8;      /* Main text */
+  --text-secondary: #8899aa;    /* Muted text */
+  --text-muted: #445566;        /* Very muted */
+  --border: #1e3a5f;            /* Borders */
+  --glow-cyan: rgba(0, 212, 255, 0.15);   /* Glow effects */
+  --glow-red: rgba(255, 51, 102, 0.15);   /* Alert glow */
+
+  /* Typography */
+  --font-display: 'Space Mono', monospace;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-secondary);
+  border-radius: 4px; border: 1px solid var(--border);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border);
+}
+
+/* Scanline Overlay */
+body::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,0),
+    rgba(255,255,255,0) 50%,
+    rgba(0,0,0,0.1) 50%,
+    rgba(0,0,0,0.1)
+  );
+  background-size: 100% 4px;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.2;
+}
+
+/* Subtle Noise Texture */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Typography styles */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+code, pre {
+  font-family: var(--font-mono);
+}
+
+a {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a:hover {
+  text-shadow: 0 0 8px var(--glow-cyan);
+}
+
+/* Components Common Utilities */
+.glass-panel {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.glow-text-cyan {
+  text-shadow: 0 0 10px var(--glow-cyan);
+}
+
+.glow-text-red {
+  text-shadow: 0 0 10px var(--glow-red);
+}
+
+.glow-box-cyan {
+  box-shadow: 0 0 15px var(--glow-cyan);
+}

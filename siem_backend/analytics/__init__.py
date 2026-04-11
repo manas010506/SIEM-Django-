@@ -1,0 +1,1 @@
+# New-Item alerts/migrations/__init__.py
