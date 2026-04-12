@@ -72,7 +72,7 @@ class RequestMonitoringMiddleware:
 
         if request_count > self.DOS_THRESHOLD:
             self.handle_dos_attack(request, ip, request_count)
-        elif request_count > 20:
+        elif request_count > 20 and request_count % 10 == 0:
             self.log_suspicious_activity(request, ip, request_count)
 
         return self.get_response(request)  # ← MUST be last, inside __call__

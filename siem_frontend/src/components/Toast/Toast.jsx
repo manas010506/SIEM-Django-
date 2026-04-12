@@ -59,7 +59,6 @@ const ToastItem = ({ toast, onDismiss }) => {
                 </button>
             </div>
 
-            {/* Auto-dismiss progress bar */}
             <motion.div
                 className={styles.progressBar}
                 initial={{ width: '100%' }}
@@ -75,7 +74,36 @@ const ToastContainer = () => {
     const seenAlertIds = useRef(new Set());
     const isFirstLoad = useRef(true);
 
-    useEffect(() => {
+    const playAlertSound = () => {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.type = 'square';
+
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+            oscillator.frequency.setValueAtTime(660, audioCtx.currentTime + 0.3);
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 0.6);
+            oscillator.frequency.setValueAtTime(660, audioCtx.currentTime + 0.9);
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime + 1.2);
+            oscillator.frequency.setValueAtTime(550, audioCtx.currentTime + 1.5);
+
+            gainNode.gain.setValueAtTime(1.5, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(1.5, audioCtx.currentTime + 1.8);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.0);
+
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 2.0);
+        } catch (err) {
+            console.log('Audio not supported:', err);
+        }
+    }; // ✅ Correct closing here
+
+    useEffect(() => {  // ✅ Inside ToastContainer now
         const token = localStorage.getItem('access_token');
         if (!token) return;
 
@@ -100,8 +128,12 @@ const ToastContainer = () => {
                     }]);
                 });
 
+                if (newAlerts.length > 0) {
+                    playAlertSound();
+                }
+
             } catch (error) {
-                // Silently fail - user might not be logged in
+                // Silently fail
             }
         };
 

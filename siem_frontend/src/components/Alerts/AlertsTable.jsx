@@ -8,30 +8,66 @@ import styles from './AlertsTable.module.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ── Threat Score Meter ────────────────────────────────────────────────────────
+const ThreatScoreMeter = ({ score = 0 }) => {
+  const getColor = (s) => {
+    if (s >= 80) return '#ff4d4d';
+    if (s >= 60) return '#ffa500';
+    if (s >= 40) return '#ffd166';
+    return '#00ff87';
+  };
+
+  const getLabel = (s) => {
+    if (s >= 80) return 'CRITICAL';
+    if (s >= 60) return 'HIGH';
+    if (s >= 40) return 'MEDIUM';
+    return 'LOW';
+  };
+
+  const color = getColor(score);
+
+  return (
+    <div className={styles.threatMeter}>
+      <div className={styles.threatBarWrapper}>
+        <div
+          className={styles.threatBar}
+          style={{ width: `${score}%`, background: color }}
+        />
+      </div>
+      <div className={styles.threatInfo}>
+        <span className={styles.threatScore} style={{ color }}>
+          {score}
+        </span>
+        <span className={styles.threatLabel} style={{ color }}>
+          {getLabel(score)}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const AlertsTable = ({ alerts, onRowClick }) => {
   const tableRef = useRef(null);
   const rowsRef = useRef([]);
 
   useEffect(() => {
     if (tableRef.current && alerts && alerts.length > 0) {
-      // Clear existing scroll triggers to prevent duplicates on data change
       ScrollTrigger.getAll().forEach(t => {
         if (t.vars.trigger === tableRef.current || rowsRef.current.includes(t.vars.trigger)) {
           t.kill();
         }
       });
 
-      // Animate table rows sequentially as they scroll into view
       ScrollTrigger.batch(rowsRef.current.filter(Boolean), {
         onEnter: (elements) => {
           gsap.fromTo(
             elements,
             { opacity: 0, y: 30 },
-            { 
-              opacity: 1, 
-              y: 0, 
-              stagger: 0.05, 
-              duration: 0.4, 
+            {
+              opacity: 1,
+              y: 0,
+              stagger: 0.05,
+              duration: 0.4,
               ease: 'power2.out',
               overwrite: true
             }
@@ -53,12 +89,12 @@ const AlertsTable = ({ alerts, onRowClick }) => {
   }
 
   const getStatusClass = (status) => {
-    switch(status) {
-      case 'NEW': return styles.statusNew;
+    switch (status) {
+      case 'NEW':          return styles.statusNew;
       case 'ACKNOWLEDGED': return styles.statusAck;
-      case 'INVESTIGATING': return styles.statusInv;
-      case 'RESOLVED': return styles.statusRes;
-      default: return styles.statusDefault;
+      case 'INVESTIGATING':return styles.statusInv;
+      case 'RESOLVED':     return styles.statusRes;
+      default:             return styles.statusDefault;
     }
   };
 
@@ -70,6 +106,7 @@ const AlertsTable = ({ alerts, onRowClick }) => {
             <th>Severity</th>
             <th>Title</th>
             <th>Source IP</th>
+            <th>Threat Score</th>
             <th>Triggered At</th>
             <th>Status</th>
             <th>Actions</th>
@@ -77,8 +114,8 @@ const AlertsTable = ({ alerts, onRowClick }) => {
         </thead>
         <tbody>
           {alerts.map((alert, index) => (
-            <tr 
-              key={alert.id} 
+            <tr
+              key={alert.id}
               ref={el => rowsRef.current[index] = el}
               className={styles.row}
               onClick={() => onRowClick(alert)}
@@ -88,6 +125,9 @@ const AlertsTable = ({ alerts, onRowClick }) => {
               </td>
               <td className={styles.titleCell}>{alert.title}</td>
               <td className={styles.ipCell}>{alert.source_ip || 'N/A'}</td>
+              <td className={styles.scoreCell}>
+                <ThreatScoreMeter score={alert.threat_score || 0} />
+              </td>
               <td className={styles.timeCell}>{formatDate(alert.triggered_at)}</td>
               <td>
                 <span className={`${styles.statusBadge} ${getStatusClass(alert.status)}`}>
@@ -95,7 +135,7 @@ const AlertsTable = ({ alerts, onRowClick }) => {
                 </span>
               </td>
               <td>
-                <button 
+                <button
                   className={styles.actionBtn}
                   onClick={(e) => {
                     e.stopPropagation();

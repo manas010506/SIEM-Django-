@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Download, Search, ChevronLeft, ChevronRight, X, Clock, Globe, Server, Activity } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import useLogs from '../hooks/useLogs';
 import LogsTable from '../components/Logs/LogsTable';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -17,19 +18,30 @@ const LEVEL_COLORS = {
 };
 
 const LogsContent = () => {
-  const { 
-    logs, 
+  const [searchParams] = useSearchParams();
+
+  const {
+    logs,
     filters,
     pagination,
-    isLoading, 
-    error, 
-    updateFilters, 
-    setPage 
+    isLoading,
+    error,
+    updateFilters,
+    setPage
   } = useLogs({ log_level: 'ALL', source_ip: '', event_type: '' });
-  
+
   const [selectedLog, setSelectedLog] = useState(null);
   const [searchInputIp, setSearchInputIp] = useState(filters.source_ip || '');
   const [searchInputEvent, setSearchInputEvent] = useState(filters.event_type || '');
+
+  // ✅ Read IP from URL when navigated from navbar search
+  useEffect(() => {
+    const ipFromUrl = searchParams.get('source_ip');
+    if (ipFromUrl) {
+      setSearchInputIp(ipFromUrl);
+      updateFilters({ source_ip: ipFromUrl });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -46,14 +58,12 @@ const LogsContent = () => {
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
-  const handleRowClick = (log) => {
-    setSelectedLog(log);
-  };
+  const handleRowClick = (log) => setSelectedLog(log);
 
   const handleApplyFilters = () => {
-    updateFilters({ 
-      source_ip: searchInputIp, 
-      event_type: searchInputEvent 
+    updateFilters({
+      source_ip: searchInputIp,
+      event_type: searchInputEvent
     });
   };
 
@@ -93,10 +103,13 @@ const LogsContent = () => {
       <div className={styles.header}>
         <div className={styles.titleInfo}>
           <h2 className={styles.title}>System Logs</h2>
-          <span className={styles.badge}>{pagination.totalCount.toLocaleString()} Total</span>
+          <span className={styles.badge}>
+            {pagination.totalCount.toLocaleString()} Total
+          </span>
+          <span className={styles.liveBadge}>● LIVE</span>
         </div>
-        <button 
-          className={styles.exportBtn} 
+        <button
+          className={styles.exportBtn}
           onClick={handleExportCSV}
           disabled={isLoading || logs.length === 0}
         >
@@ -106,7 +119,7 @@ const LogsContent = () => {
       </div>
 
       {/* Filter Bar */}
-      <motion.div 
+      <motion.div
         className={styles.filterBar}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -114,8 +127,8 @@ const LogsContent = () => {
       >
         <div className={styles.filterGroup}>
           <label htmlFor="log_level">Log Level</label>
-          <select 
-            id="log_level" 
+          <select
+            id="log_level"
             value={filters.log_level}
             onChange={(e) => updateFilters({ log_level: e.target.value })}
             className={styles.select}
@@ -128,12 +141,12 @@ const LogsContent = () => {
             <option value="CRITICAL">Critical</option>
           </select>
         </div>
-        
+
         <div className={styles.searchGroup}>
           <label htmlFor="source_ip">Source IP</label>
-          <input 
+          <input
             id="source_ip"
-            type="text" 
+            type="text"
             placeholder="e.g. 192.168.1.1"
             value={searchInputIp}
             onChange={(e) => setSearchInputIp(e.target.value)}
@@ -144,9 +157,9 @@ const LogsContent = () => {
 
         <div className={styles.searchGroup}>
           <label htmlFor="event_type">Event Type</label>
-          <input 
+          <input
             id="event_type"
-            type="text" 
+            type="text"
             placeholder="e.g. login_failed"
             value={searchInputEvent}
             onChange={(e) => setSearchInputEvent(e.target.value)}
@@ -154,7 +167,7 @@ const LogsContent = () => {
             className={styles.input}
           />
         </div>
-        
+
         <button className={styles.applyBtn} onClick={handleApplyFilters}>
           <Search size={16} />
           <span>Apply Filters</span>
@@ -168,10 +181,10 @@ const LogsContent = () => {
         ) : (
           <>
             <LogsTable logs={logs} onRowClick={handleRowClick} />
-            
+
             {pagination.totalPages > 1 && (
               <div className={styles.pagination}>
-                <button 
+                <button
                   className={styles.pageBtn}
                   onClick={() => setPage(pagination.page - 1)}
                   disabled={pagination.page === 1}
@@ -179,9 +192,10 @@ const LogsContent = () => {
                   <ChevronLeft size={18} />
                 </button>
                 <span className={styles.pageInfo}>
-                  Page <strong>{pagination.page}</strong> of <strong>{pagination.totalPages}</strong>
+                  Page <strong>{pagination.page}</strong> of{' '}
+                  <strong>{pagination.totalPages}</strong>
                 </span>
-                <button 
+                <button
                   className={styles.pageBtn}
                   onClick={() => setPage(pagination.page + 1)}
                   disabled={pagination.page === pagination.totalPages}
@@ -194,7 +208,7 @@ const LogsContent = () => {
         )}
       </div>
 
-      {/* ── Inline Modal ── */}
+      {/* Inline Modal */}
       {selectedLog && (
         <div className={styles.modal} onClick={() => setSelectedLog(null)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -204,7 +218,7 @@ const LogsContent = () => {
               <div className={styles.modalTitle}>
                 <span
                   className={styles.levelPill}
-                  style={{ 
+                  style={{
                     background: `${LEVEL_COLORS[selectedLog.log_level]}22`,
                     color: LEVEL_COLORS[selectedLog.log_level],
                     border: `1px solid ${LEVEL_COLORS[selectedLog.log_level]}`,
@@ -222,13 +236,11 @@ const LogsContent = () => {
             {/* Modal Body */}
             <div className={styles.modalBody}>
 
-              {/* Message Box */}
               <div className={styles.messageBox}>
                 <p className={styles.messageLabel}>Message</p>
                 <p className={styles.messageText}>{selectedLog.message}</p>
               </div>
 
-              {/* Detail Rows */}
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}><Clock size={14} /> Timestamp</span>
                 <span className={styles.detailValue}>

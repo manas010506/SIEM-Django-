@@ -266,3 +266,118 @@
 .viewAllBtn:hover {
   background: rgba(102, 126, 234, 0.2);
 }
+
+/* ── Live Clock ─────────────────────────────────────────── */
+.liveClock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  padding: 4px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-width: 130px;
+}
+
+.clockDate {
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+
+.clockTime {
+  color: var(--accent-cyan);
+  font-size: 14px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* ── Search Wrapper ─────────────────────────────────────── */
+.searchWrapper {
+  position: relative;
+}
+
+.searchClear {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+}
+
+.searchClear:hover {
+  color: var(--text-primary);
+}
+
+/* ── Search Results Dropdown ────────────────────────────── */
+.searchDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  min-width: 320px;
+  background: #1a1f2e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.searchResult {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s;
+}
+
+.searchResult:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.searchResultDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.searchResultInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.searchResultTitle {
+  color: #e0e0e0;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.searchResultSub {
+  color: #666;
+  font-size: 11px;
+}
+
+.searchHint {
+  padding: 8px 14px;
+  color: #444;
+  font-size: 11px;
+  text-align: center;
+}
