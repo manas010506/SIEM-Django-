@@ -10,11 +10,10 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already authenticated
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -22,38 +21,38 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (!username || !password) {
       setError('Please enter both username and password.');
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       await login(username, password);
-      // Wait a moment for the animation to play before navigating
       setTimeout(() => {
         navigate('/dashboard');
       }, 500);
     } catch (err) {
       setIsSubmitting(false);
-      setError(err.response?.data?.detail || 'Authentication failed. Please check your credentials.');
+      // ✅ Handle account lockout specifically
+      if (err.response?.status === 423) {
+        setError('🔒 Account locked due to brute force detection. Wait 15 minutes or contact administrator.');
+      } else {
+        setError(err.response?.data?.detail || 'Authentication failed. Please check your credentials.');
+      }
     }
   };
 
-  // Staggered animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2
-      }
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       scale: 0.95,
       transition: { duration: 0.3 }
     }
@@ -61,8 +60,8 @@ const LoginPage = () => {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { type: 'spring', stiffness: 300, damping: 24 }
     }
@@ -76,7 +75,7 @@ const LoginPage = () => {
       </div>
 
       <AnimatePresence mode="wait">
-        <motion.div 
+        <motion.div
           className={styles.loginCard}
           variants={containerVariants}
           initial="hidden"
@@ -93,7 +92,7 @@ const LoginPage = () => {
           </motion.div>
 
           {error && (
-            <motion.div 
+            <motion.div
               className={styles.errorAlert}
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto', scale: [1, 1.02, 1] }}
@@ -104,8 +103,8 @@ const LoginPage = () => {
             </motion.div>
           )}
 
-          <motion.form 
-            className={styles.form} 
+          <motion.form
+            className={styles.form}
             onSubmit={handleSubmit}
             variants={containerVariants}
           >
@@ -113,10 +112,10 @@ const LoginPage = () => {
               <label htmlFor="username">Operator ID</label>
               <div className={styles.inputWrapper}>
                 <User size={18} className={styles.inputIcon} />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   id="username"
-                  placeholder="Enter your username" 
+                  placeholder="Enter your username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={isSubmitting}
@@ -130,10 +129,10 @@ const LoginPage = () => {
               <label htmlFor="password">Access Code</label>
               <div className={styles.inputWrapper}>
                 <Lock size={18} className={styles.inputIcon} />
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   id="password"
-                  placeholder="Enter your password" 
+                  placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isSubmitting}
@@ -143,8 +142,8 @@ const LoginPage = () => {
               </div>
             </motion.div>
 
-            <motion.button 
-              type="submit" 
+            <motion.button
+              type="submit"
               className={styles.submitBtn}
               variants={itemVariants}
               whileHover={{ scale: 1.02 }}

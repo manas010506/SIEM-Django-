@@ -11,6 +11,8 @@ import TopIPsBar from '../components/Dashboard/TopIPsBar';
 import RecentAlerts from '../components/Dashboard/RecentAlerts';
 import SimulateAttack from '../components/Dashboard/SimulateAttack'; // ← ADD
 import styles from './DashboardPage.module.css';
+import BlockedIPs from '../components/Dashboard/BlockedIPs';
+import MitigationPanel from '../components/Dashboard/MitigationPanel';
 
 const DashboardContent = () => {
   const { stats, isLoading, error } = useDashboardStats();
@@ -77,6 +79,8 @@ const DashboardContent = () => {
 
       {/* Attack Simulator ← ADD THIS */}
       <SimulateAttack />
+      <MitigationPanel />
+      <BlockedIPs />
 
       {/* Bottom Row: Lists & Bars */}
       <div className={styles.bottomGrid}>

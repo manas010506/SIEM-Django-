@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Shield, Eye } from 'lucide-react';
 import SeverityBadge from './SeverityBadge';
 import { formatDate } from '../../utils/formatters';
 import styles from './AlertsTable.module.css';
+import { Shield, Eye, ShieldOff } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -46,6 +46,33 @@ const ThreatScoreMeter = ({ score = 0 }) => {
   );
 };
 
+// ── Mitigation Badge ──────────────────────────────────────────────────────────
+const MitigationBadge = ({ details }) => {
+  if (!details?.mitigation_applied) {
+    return (
+      <span className={styles.mitigationNone}>
+        No mitigation
+      </span>
+    );
+  }
+
+  const typeMap = {
+    'IP_BLOCK': '🛡️ IP Blocked',
+    'ACCOUNT_LOCKOUT': '🔒 Account Locked',
+    'IP_BLACKLIST': '🚫 Blacklisted',
+    'RATE_LIMIT': '⚡ Rate Limited',
+  };
+
+  const label = typeMap[details.mitigation_type]
+    || `🛡️ ${details.mitigation_type?.replace('_', ' ') || 'Mitigated'}`;
+
+  return (
+    <span className={styles.mitigationActive}>
+      {label}
+    </span>
+  );
+};
+
 const AlertsTable = ({ alerts, onRowClick }) => {
   const tableRef = useRef(null);
   const rowsRef = useRef([]);
@@ -53,7 +80,10 @@ const AlertsTable = ({ alerts, onRowClick }) => {
   useEffect(() => {
     if (tableRef.current && alerts && alerts.length > 0) {
       ScrollTrigger.getAll().forEach(t => {
-        if (t.vars.trigger === tableRef.current || rowsRef.current.includes(t.vars.trigger)) {
+        if (
+          t.vars.trigger === tableRef.current ||
+          rowsRef.current.includes(t.vars.trigger)
+        ) {
           t.kill();
         }
       });
@@ -88,13 +118,38 @@ const AlertsTable = ({ alerts, onRowClick }) => {
     );
   }
 
+  const handleBlockIP = async (e, ip) => {
+    e.stopPropagation();
+    if (!ip || ip === 'N/A') return;
+
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch('http://localhost:8000/api/block-ip/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ip_address: ip,
+          reason: 'Manually blocked by analyst'
+        })
+      });
+      if (res.ok) {
+        alert(`✅ IP ${ip} has been blocked!`);
+      }
+    } catch (err) {
+      console.error('Block failed:', err);
+    }
+  };
+
   const getStatusClass = (status) => {
     switch (status) {
-      case 'NEW':          return styles.statusNew;
-      case 'ACKNOWLEDGED': return styles.statusAck;
-      case 'INVESTIGATING':return styles.statusInv;
-      case 'RESOLVED':     return styles.statusRes;
-      default:             return styles.statusDefault;
+      case 'NEW':           return styles.statusNew;
+      case 'ACKNOWLEDGED':  return styles.statusAck;
+      case 'INVESTIGATING': return styles.statusInv;
+      case 'RESOLVED':      return styles.statusRes;
+      default:              return styles.statusDefault;
     }
   };
 
@@ -107,6 +162,7 @@ const AlertsTable = ({ alerts, onRowClick }) => {
             <th>Title</th>
             <th>Source IP</th>
             <th>Threat Score</th>
+            <th>Mitigation</th>  {/* ✅ NEW column */}
             <th>Triggered At</th>
             <th>Status</th>
             <th>Actions</th>
@@ -128,6 +184,10 @@ const AlertsTable = ({ alerts, onRowClick }) => {
               <td className={styles.scoreCell}>
                 <ThreatScoreMeter score={alert.threat_score || 0} />
               </td>
+              {/* ✅ NEW — Mitigation badge */}
+              <td className={styles.mitigationCell}>
+                <MitigationBadge details={alert.details} />
+              </td>
               <td className={styles.timeCell}>{formatDate(alert.triggered_at)}</td>
               <td>
                 <span className={`${styles.statusBadge} ${getStatusClass(alert.status)}`}>
@@ -135,16 +195,28 @@ const AlertsTable = ({ alerts, onRowClick }) => {
                 </span>
               </td>
               <td>
-                <button
-                  className={styles.actionBtn}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRowClick(alert);
-                  }}
-                  aria-label="View Details"
-                >
-                  <Eye size={16} />
-                </button>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button
+                    className={styles.actionBtn}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRowClick(alert);
+                    }}
+                    aria-label="View Details"
+                    title="View Details"
+                  >
+                    <Eye size={16} />
+                  </button>
+                  <button
+                    className={styles.blockBtn}
+                    onClick={(e) => handleBlockIP(e, alert.source_ip)}
+                    aria-label="Block IP"
+                    title={`Block ${alert.source_ip}`}
+                    disabled={!alert.source_ip || alert.source_ip === 'N/A'}
+                  >
+                    <ShieldOff size={16} />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
