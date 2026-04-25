@@ -3,6 +3,7 @@ import { fetchAlerts, acknowledgeAlert as apiAck, resolveAlert as apiResolve } f
 
 const useAlerts = (initialFilters = {}) => {
   const [alerts, setAlerts] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [filters, setFilters] = useState(initialFilters);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,14 +11,13 @@ const useAlerts = (initialFilters = {}) => {
   const loadAlerts = useCallback(async () => {
     try {
       setIsLoading(true);
-      // Clean up empty filters
       const cleanFilters = Object.fromEntries(
         Object.entries(filters).filter(([_, v]) => v !== '' && v !== 'ALL')
       );
-      
       const data = await fetchAlerts(cleanFilters);
-      // The API might return { count, results } or just an array
       setAlerts(data.results || data || []);
+      // ✅ Use real total count from API pagination
+      setTotalCount(data.count || (data.results || data || []).length);
       setError(null);
     } catch (err) {
       console.error('Failed to load alerts:', err);
@@ -38,8 +38,9 @@ const useAlerts = (initialFilters = {}) => {
   const acknowledgeAlert = async (id) => {
     try {
       await apiAck(id);
-      // Optimistic update
       setAlerts(prev => prev.map(a => a.id === id ? { ...a, status: 'ACKNOWLEDGED' } : a));
+      // ✅ Decrease count when acknowledged
+      setTotalCount(prev => Math.max(0, prev - 1));
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message };
@@ -49,20 +50,22 @@ const useAlerts = (initialFilters = {}) => {
   const resolveAlert = async (id, notes) => {
     try {
       await apiResolve(id, notes);
-      // Optimistic update
       setAlerts(prev => prev.map(a => a.id === id ? { ...a, status: 'RESOLVED' } : a));
+      // ✅ Decrease count when resolved
+      setTotalCount(prev => Math.max(0, prev - 1));
       return { success: true };
     } catch (err) {
       return { success: false, error: err.message };
     }
   };
 
-  return { 
-    alerts, 
-    filters, 
-    isLoading, 
-    error, 
-    updateFilters, 
+  return {
+    alerts,
+    totalCount,
+    filters,
+    isLoading,
+    error,
+    updateFilters,
     refetch: loadAlerts,
     acknowledgeAlert,
     resolveAlert

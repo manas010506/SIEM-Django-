@@ -1,71 +1,41 @@
-# auto_log_generator.py
 import os, django, random, time, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'siem_backend.settings')
 django.setup()
 
-from alerts.models import Alert, AlertRule
 from logs.models import Log, LogSource
 from django.utils import timezone
 
+# ✅ Only normal realistic logs — no attacks
+# Attacks are handled by Attack Simulator buttons
 REALISTIC_EVENTS = [
-    ('INFO',     'login_success',      '192.168.1.{}',  'User logged in successfully'),
-    ('INFO',     'api_request',        '10.0.0.{}',     'GET /api/dashboard/ 200 OK - 45ms'),
-    ('WARNING',  'login_failed',       '45.142.212.61', 'Failed login attempt for admin'),
-    ('INFO',     'file_access',        '192.168.1.{}',  'File accessed: /var/www/html/index.php'),
-    ('ERROR',    'database_query',     '192.168.1.20',  'Query timeout after 30s on table users'),
-    ('INFO',     'network_connection', '172.16.0.{}',   'New connection established on port 443'),
-    ('WARNING',  'port_scan',          '185.220.101.44','Multiple port connection attempts detected'),
-    ('INFO',     'logout',             '192.168.1.{}',  'User session ended after 30 minutes'),
-    ('WARNING',  'data_transfer',      '10.0.0.{}',     'Large data transfer: 500MB to external IP'),
-    ('CRITICAL', 'login_failed',       '91.109.190.48', 'Brute force attempt detected'),
+    ('INFO',    'login_success',      '192.168.1.{}', 'User logged in successfully'),
+    ('INFO',    'api_request',        '10.0.0.{}',    'GET /api/dashboard/ 200 OK - 45ms'),
+    ('INFO',    'api_request',        '192.168.1.{}', 'POST /api/logs/ 201 Created - 120ms'),
+    ('INFO',    'file_access',        '192.168.1.{}', 'File accessed: /var/www/html/index.php'),
+    ('INFO',    'network_connection', '172.16.0.{}',  'New connection established on port 443'),
+    ('INFO',    'logout',             '192.168.1.{}', 'User session ended after 30 minutes'),
+    ('INFO',    'file_access',        '10.0.0.{}',    'File accessed: /etc/nginx/nginx.conf'),
+    ('INFO',    'api_request',        '172.16.0.{}',  'GET /api/alerts/ 200 OK - 89ms'),
+    ('WARNING', 'login_failed',       '192.168.1.{}', 'Failed login attempt — invalid password'),
+    ('WARNING', 'data_transfer',      '10.0.0.{}',    'Large data transfer: 500MB to external IP'),
+    ('WARNING', 'config_change',      '192.168.1.{}', 'System configuration modified by user'),
+    ('WARNING', 'disk_usage',         '192.168.1.20', 'Disk usage exceeded 85% on /var partition'),
+    ('ERROR',   'database_query',     '192.168.1.20', 'Query timeout after 30s on table users'),
+    ('ERROR',   'service_error',      '10.0.0.20',    'Service nginx failed to restart'),
+    ('ERROR',   'connection_refused', '172.16.0.{}',  'Connection refused on port 5432 (PostgreSQL)'),
 ]
 
 source = LogSource.objects.first()
-print("Auto log generator running... Press Ctrl+C to stop")
+if not source:
+    print("ERROR: No log source found! Run generate_sample_data.py first")
+    exit(1)
 
-from collections import defaultdict
-ip_counts = defaultdict(int)
-
-def check_and_create_alert(level, event, ip):
-    """Create alert if suspicious pattern detected"""
-    if event == 'login_failed':
-        ip_counts[ip] += 1
-        # After 5 failed logins from same IP create alert
-        if ip_counts[ip] == 5:
-            rule = AlertRule.objects.filter(
-                name='Brute Force Detection'
-            ).first()
-            if rule:
-                Alert.objects.create(
-                    rule=rule,
-                    severity='HIGH',
-                    status='NEW',
-                    title=f'Brute Force Attack from {ip}',
-                    description=f'5 failed login attempts from {ip}',
-                    source_ip=ip,
-                    threat_score=80,
-                    details={'attempts': 5}
-                )
-                print(f"🚨 ALERT CREATED: Brute Force from {ip}")
-                ip_counts[ip] = 0  # Reset counter
-
-    if event == 'port_scan':
-        rule = AlertRule.objects.filter(
-            name='Port Scanning Detection'
-        ).first()
-        if rule and random.random() < 0.3:  # 30% chance per scan log
-            Alert.objects.create(
-                rule=rule,
-                severity='CRITICAL',
-                status='NEW',
-                title=f'Port Scan from {ip}',
-                description=f'Port scanning detected from {ip}',
-                source_ip=ip,
-                threat_score=85,
-                details={'scan_detected': True}
-            )
-            print(f"🚨 ALERT CREATED: Port Scan from {ip}")
+print(f"✅ Auto log generator running...")
+print(f"✅ Using log source: {source.name}")
+print(f"✅ Generating normal system logs every 2-5 seconds")
+print(f"✅ Press Ctrl+C to stop")
+print("-" * 50)
 
 while True:
     level, event, ip_template, message = random.choice(REALISTIC_EVENTS)
@@ -83,5 +53,4 @@ while True:
         parsed_at=timezone.now()
     )
     print(f"[{level}] {event} from {ip}")
-    check_and_create_alert(level, event, ip)
-    time.sleep(random.uniform(2, 5))  # New log every 2-5 seconds
+    time.sleep(random.uniform(2, 5))

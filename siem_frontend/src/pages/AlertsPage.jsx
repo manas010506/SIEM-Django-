@@ -7,22 +7,24 @@ import AlertModal from '../components/Alerts/AlertModal';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 import { initScrollTriggerRefresh } from '../main';
+import { fetchAlerts } from '../services/api';
 import styles from './AlertsPage.module.css';
 
 const AlertsContent = () => {
-  const { 
-    alerts, 
-    filters, 
-    isLoading, 
-    error, 
-    updateFilters, 
+  const {
+    alerts,
+    filters,
+    isLoading,
+    error,
+    updateFilters,
     refetch,
     acknowledgeAlert,
     resolveAlert
   } = useAlerts({ severity: 'ALL', status: 'ALL' });
-  
+
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newAlertsCount, setNewAlertsCount] = useState(0);
 
   useEffect(() => {
     if (!isLoading && alerts?.length >= 0) {
@@ -30,12 +32,23 @@ const AlertsContent = () => {
     }
   }, [isLoading, alerts]);
 
+  // ✅ Fetch NEW alerts count separately for badge
+  useEffect(() => {
+    const fetchNewCount = async () => {
+      try {
+        const data = await fetchAlerts({ status: 'NEW' });
+        setNewAlertsCount(data.count || (data.results || data).length);
+      } catch (err) {}
+    };
+    fetchNewCount();
+    const interval = setInterval(fetchNewCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleRowClick = (alert) => {
     setSelectedAlert(alert);
     setIsModalOpen(true);
   };
-
-  const activeAlertsCount = alerts?.filter(a => a.status !== 'RESOLVED').length || 0;
 
   if (error) {
     throw new Error(error);
@@ -47,11 +60,12 @@ const AlertsContent = () => {
       <div className={styles.header}>
         <div className={styles.titleInfo}>
           <h2 className={styles.title}>Security Alerts</h2>
-          <span className={styles.badge}>{activeAlertsCount} Active</span>
+          {/* ✅ Uses NEW count — matches sidebar */}
+          <span className={styles.badge}>{newAlertsCount} Active</span>
         </div>
-        
-        <button 
-          className={styles.refreshBtn} 
+
+        <button
+          className={styles.refreshBtn}
           onClick={() => refetch()}
           disabled={isLoading}
         >
@@ -61,7 +75,7 @@ const AlertsContent = () => {
       </div>
 
       {/* Filter Bar */}
-      <motion.div 
+      <motion.div
         className={styles.filterBar}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -71,11 +85,11 @@ const AlertsContent = () => {
           <Filter size={16} className={styles.filterIcon} />
           <span className={styles.filterLabel}>Filters</span>
         </div>
-        
+
         <div className={styles.selectGroup}>
           <label htmlFor="severity">Severity</label>
-          <select 
-            id="severity" 
+          <select
+            id="severity"
             value={filters.severity}
             onChange={(e) => updateFilters({ severity: e.target.value })}
             className={styles.select}
@@ -87,11 +101,11 @@ const AlertsContent = () => {
             <option value="LOW">Low</option>
           </select>
         </div>
-        
+
         <div className={styles.selectGroup}>
           <label htmlFor="status">Status</label>
-          <select 
-            id="status" 
+          <select
+            id="status"
             value={filters.status}
             onChange={(e) => updateFilters({ status: e.target.value })}
             className={styles.select}
@@ -115,10 +129,10 @@ const AlertsContent = () => {
       </div>
 
       {/* Modal */}
-      <AlertModal 
-        alert={selectedAlert} 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <AlertModal
+        alert={selectedAlert}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onAcknowledge={acknowledgeAlert}
         onResolve={resolveAlert}
       />

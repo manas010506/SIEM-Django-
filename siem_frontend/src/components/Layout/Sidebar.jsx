@@ -18,7 +18,6 @@ const Sidebar = () => {
 
   useEffect(() => {
     loadAlertCount();
-    // Auto-refresh every 30 seconds
     const interval = setInterval(loadAlertCount, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -26,8 +25,8 @@ const Sidebar = () => {
   const loadAlertCount = async () => {
     try {
       const data = await fetchAlerts({ status: 'NEW' });
-      const alerts = data.results || data;
-      setActiveAlertCount(alerts.length);
+      // ✅ Use total count from API pagination
+      setActiveAlertCount(data.count || (data.results || data).length);
     } catch (error) {
       console.error('Failed to load alert count:', error);
     }
@@ -73,7 +72,6 @@ const Sidebar = () => {
                       )}
                       <Icon size={20} className={styles.navIcon} />
                       <span className={styles.navLabel}>{item.label}</span>
-                      {/* ✅ FIXED - now dynamic */}
                       {item.badge && activeAlertCount > 0 && (
                         <span className={styles.badge}>{activeAlertCount}</span>
                       )}

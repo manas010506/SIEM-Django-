@@ -36,7 +36,6 @@ const timeAgo = (dateStr) => {
   return `${Math.floor(diff / 86400)}d ago`;
 };
 
-// ── Live Clock Component ──────────────────────────────────────────────────────
 const LiveClock = () => {
   const [time, setTime] = useState(new Date());
 
@@ -60,7 +59,6 @@ const LiveClock = () => {
   );
 };
 
-// ── Navbar ────────────────────────────────────────────────────────────────────
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -81,7 +79,6 @@ const Navbar = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -100,13 +97,13 @@ const Navbar = () => {
       const data = await fetchAlerts({ status: 'NEW' });
       const alertList = data.results || data;
       setAlerts(alertList.slice(0, 5));
-      setUnreadCount(alertList.length);
+      // ✅ Use total count from API pagination
+      setUnreadCount(data.count || alertList.length);
     } catch (error) {
       console.error('Failed to load alerts:', error);
     }
   };
 
-  // ── Search Logic ────────────────────────────────────────────────────────────
   const handleSearchChange = async (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -118,7 +115,6 @@ const Navbar = () => {
     }
 
     try {
-      // Search alerts
       const alertData = await fetchAlerts({ search: query });
       const alertList = (alertData.results || alertData).slice(0, 3);
 
@@ -133,7 +129,6 @@ const Navbar = () => {
         })),
       ];
 
-      // If query looks like an IP, go directly to logs filtered by IP
       const ipPattern = /^\d{1,3}\.\d{1,3}/;
       if (ipPattern.test(query)) {
         results.push({
@@ -155,7 +150,6 @@ const Navbar = () => {
   const handleSearchKeyDown = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
       setShowSearchResults(false);
-      // Check if IP pattern
       const ipPattern = /^\d{1,3}\.\d{1,3}/;
       if (ipPattern.test(searchQuery)) {
         navigate(`/logs?source_ip=${searchQuery}`);
@@ -191,7 +185,7 @@ const Navbar = () => {
 
       <div className={styles.rightSection}>
 
-        {/* ── Search Bar ── */}
+        {/* Search Bar */}
         <div className={styles.searchWrapper} ref={searchRef}>
           <div className={styles.searchContainer}>
             <Search size={18} className={styles.searchIcon} />
@@ -214,7 +208,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Search Results Dropdown */}
           {showSearchResults && searchResults.length > 0 && (
             <div className={styles.searchDropdown}>
               {searchResults.map((result, i) => (
@@ -240,16 +233,16 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* ── Live Clock ── */}
+        {/* Live Clock */}
         <LiveClock />
 
-        {/* ── Status Indicator ── */}
+        {/* Status Indicator */}
         <div className={styles.statusIndicator}>
           <div className={styles.pulseDot}></div>
           <span className={styles.statusText}>System Online</span>
         </div>
 
-        {/* ── Bell with dropdown ── */}
+        {/* Bell with dropdown */}
         <div className={styles.notificationWrapper} ref={dropdownRef}>
           <button
             className={styles.iconButton}
